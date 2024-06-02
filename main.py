@@ -4,7 +4,7 @@ from data import *
 from pyrogram import Client, filters
 from pyrogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent, \
     InlineKeyboardMarkup, CallbackQuery, Message
-
+from os import environ, getenv
 
 app = Client("XOGame",
              api_id=os.environ.get("API_ID"),
