@@ -12,7 +12,7 @@ app = Client("XOGame",
              bot_token=os.environ.get("BOT_TOKEN")
              )
 
-LOG_CHANNEL_ID = int(os.environ.get("-1001997285269"))
+LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1001997285269"))
 
 def mention(name: str, id: int) -> str:
     return "[{}](tg://user?id={})".format(name, id)
@@ -56,7 +56,7 @@ SPO = """
 @app.on_message(filters.private & filters.text)
 def message_handler(bot: Client, message: Message):
     if message.text == "/start":
-        bot.send_message(LOG_CHANNEL_ID, SPO.format(message.from_user.mention, message.from_user.username, message.from_user.dc_id, message.from_user.id))
+        bot.send_message(LOG_CHANNEL, SPO.format(message.from_user.mention, message.from_user.username, message.from_user.dc_id, message.from_user.id))
         bot.send_message(
             message.from_user.id,
             f"Hi **{message.from_user.first_name}** [👋](https://telegra.ph/file/3f8ca31c69dcf369e3ecc.jpg)\n\nTo begin, start a message "
