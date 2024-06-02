@@ -1,4 +1,4 @@
-import *
+from xoxob import *
 
 
 games = []
