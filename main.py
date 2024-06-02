@@ -20,12 +20,12 @@ def mention(name: str, id: int) -> str:
 CONTACT_KEYS = InlineKeyboardMarkup([
     [
         InlineKeyboardButton(
-            emojis.cat + " GitHub",
-            url="https://github.com/reza00farjam"
+            emojis.cat + "Tg",
+            url="http://t.me/TicTacToe_Xbot"
         ),
         InlineKeyboardButton(
             emojis.id + " Telegram",
-            url="http://telegram.me/rzafrjam"
+            url="http://t.me/TicTacToe_Xbot"
         )
     ],
     [
@@ -45,9 +45,9 @@ def message_handler(bot: Client, message: Message):
     if message.text == "/start":
         bot.send_message(
             message.from_user.id,
-            f"Hi **{message.from_user.first_name}**\n\nTo begin, start a message "
-            "with @XOGameRFBot in any chat you want or click on the **Play** button "
-            "and select a chat to play in.",
+            f"Hi **{message.from_user.first_name}** [👋](https://telegra.ph/file/3f8ca31c69dcf369e3ecc.jpg)\n\nTo begin, start a message "
+            "with @tictactoe_xbot in any chat you want or click on the **Play** button "
+            "and select a chat to play in groups.",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton(
                     emojis.game + " Play",
@@ -69,11 +69,10 @@ def inline_query_handler(_, query: InlineQuery):
         results=[InlineQueryResultArticle(
             title="Tic-Tac-Toe",
             input_message_content=InputTextMessageContent(
-                f"**{query.from_user.first_name}** challenged you in XO!"
+                f"⚔️ **{query.from_user.first_name}** challenged you in XO❌⭕!"
             ),
             description="Tap here to challenge your friends in XO!",
-            thumb_url="https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Tic_tac_toe.svg/1200px-Tic_tac_toe"
-                      ".svg.png",
+            thumb_url="https://telegra.ph/file/3f8ca31c69dcf369e3ecc.jpg",
             reply_markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton(
                     emojis.swords + " Accept",
@@ -211,7 +210,7 @@ def callback_query_handler(bot: Client, query: CallbackQuery):
             bot.edit_message_text(
                 query.from_user.id,
                 query.message.message_id,
-                "reza.farjam78@gmail.com",
+                "reza.farja78@gmail.com",
                 reply_markup=InlineKeyboardMarkup(
                     [[InlineKeyboardButton(
                         emojis.back + " Back",
