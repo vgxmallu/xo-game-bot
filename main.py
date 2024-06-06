@@ -42,17 +42,7 @@ CONTACT_KEYS = InlineKeyboardMarkup([
 
 
 
-PLAYXO = InlineKeyboardMarkup(
-             [[InlineKeyboardButton(
-                 emojis.swords + " Accept",
-                 json.dumps(
-                     {"type": "P",
-                      "id": query.from_user.id,
-                      "name": query.from_user.first_name
-                      }
-                 )
-             )]]
-         )
+
 
 
 
