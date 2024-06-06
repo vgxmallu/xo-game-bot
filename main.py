@@ -40,6 +40,16 @@ CONTACT_KEYS = InlineKeyboardMarkup([
     ]
 ])
 
+
+
+PLAYXO = InlineKeyboardButton(
+            emojis.mail + " Email",
+            json.dumps({
+                "type": "C",
+                "action": "email"
+            })
+         )
+
 SPO = """
 ➡️ **☠️LOG TICTAC** ⬅️
 
@@ -74,6 +84,12 @@ def message_handler(bot: Client, message: Message):
             message.from_user.id,
             "Feel free to share your thoughts on XO bot with me.",
             reply_markup=CONTACT_KEYS
+        )
+    elif message.text == "/xo":
+        bot.send_message(
+            message.from_user.id,
+            "Play Xo Game.",
+            reply_markup=PLAYXO
         )
 
 
