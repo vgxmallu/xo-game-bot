@@ -1,10 +1,13 @@
 import os
-
+import time
+import asyncio
 from data import *
-from pyrogram import Client, filters
+from pyrogram import Client, filters, enums
 from pyrogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent, \
     InlineKeyboardMarkup, CallbackQuery, Message
 from os import environ, getenv
+
+from datetime import datetime
 
 app = Client("XOGame",
              api_id=os.environ.get("API_ID"),
@@ -42,6 +45,52 @@ CONTACT_KEYS = InlineKeyboardMarkup([
 
 
 
+MP = """
+📣 **LOG ALERT** 📣
+
+📛**Triggered Command** : /ping
+👤**Name** : {}
+👾**Username** : @{}
+💾**DC** : {}
+♐**ID** : `{}`
+🤖**BOT** : @tictactoe_xbot
+❌⭕❌⭕❌⭕❌⭕❌⭕❌⭕❌
+"""
+
+StartTime = time.time()
+def get_readable_time(seconds: int) -> str:
+    count = 0
+    ping_time = ""
+    time_list = []
+    time_suffix_list = ["s", "m", "h", "days"]
+    while count < 4:
+        count += 1
+        remainder, result = divmod(seconds, 60) if count < 3 else divmod(seconds, 24)
+        if seconds == 0 and remainder == 0:
+            break
+        time_list.append(int(result))
+        seconds = int(remainder)
+    for x in range(len(time_list)):
+        time_list[x] = str(time_list[x]) + time_suffix_list[x]
+    if len(time_list) == 4:
+        ping_time += time_list.pop() + ", "
+    time_list.reverse()
+    ping_time += ":".join(time_list)
+    return ping_time
+    
+@app.on_message(filters.command("ping"))
+async def ping_bot(bot, message):
+    start_time = time.time()
+    n = await message.reply_chat_action(enums.ChatAction.TYPING)
+    end_time = time.time()
+    ping_time = round((end_time - start_time) * 1000, 3)
+    uptime = get_readable_time((time.time() - StartTime))
+    await message.reply_text(f"**🏓 Ping:** `{ping_time} ms`\n**🆙 Time:** `{uptime}`")
+    await p4.delete()
+    await message.delete()
+    await bot.send_message(LOG_CHANNEL, MP.format(message.from_user.mention, message.from_user.username, message.from_user.dc_id, message.from_user.id))
+    #await asyncio.sleep(3200)
+    #await p.delete()
 
 
 
