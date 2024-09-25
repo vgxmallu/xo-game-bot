@@ -115,8 +115,8 @@ def message_handler(bot: Client, message: Message):
         bot.send_message(
             message.from_user.id,
             f"Hi **{message.from_user.first_name}** [👋](https://telegra.ph/file/3f8ca31c69dcf369e3ecc.jpg)\n\nTo begin, start a message "
-            "with @tictactoe_xbot in any chat you want or click on the **Play** button "
-            "and select a chat to play in groups.",
+            "with @tictactoe_xbot in any group chats you want, or click on the **Play** button "
+            "and select a chat you want to play Tic Tac Toe mini game 🕹️.",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton(
                     emojis.game + " Play",
@@ -144,9 +144,9 @@ def inline_query_handler(_, query: InlineQuery):
         results=[InlineQueryResultArticle(
             title="Tic-Tac-Toe",
             input_message_content=InputTextMessageContent(
-                f"⚔️ **{query.from_user.first_name}** challenged you in XO❌⭕!"
+                f"⚔️ **{query.from_user.first_name} challenged you in** ❌⭕❌⭕!"
             ),
-            description="Tap here to challenge your friends in XO!",
+            description="Tap here to challenge with your friends in XOXO game🕹️!",
             thumb_url="https://telegra.ph/file/3f8ca31c69dcf369e3ecc.jpg",
             reply_markup=InlineKeyboardMarkup(
                 [[InlineKeyboardButton(
