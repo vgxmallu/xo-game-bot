@@ -18,7 +18,7 @@ class XOGame:
         ]
         self.board_keys = [
             [InlineKeyboardButton(
-                ".",
+                "◻️",
                 json.dumps({
                     "type": "K",
                     "coord": (i, j),
@@ -44,7 +44,7 @@ class XOGame:
                 if self.board[i][j] == 0:
                     temp.append(
                         InlineKeyboardButton(
-                            ".",
+                            "◻️",
                             json.dumps({
                                 "type": "K",
                                 "coord": (i, j),
@@ -154,7 +154,7 @@ class XOGame:
                     if self.board[i][j] == 0:
                         temp.append(
                             InlineKeyboardButton(
-                                ".",
+                                "◻️",
                                 json.dumps({
                                     "type": "K",
                                     "coord": (i, j),
@@ -191,7 +191,7 @@ class XOGame:
 
             new_board_keys.append(
                 [InlineKeyboardButton(
-                    "Play again!",
+                    "⚔️ Play again!",
                     json.dumps({
                         "type": "R"
                     })
