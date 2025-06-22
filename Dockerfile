@@ -13,4 +13,4 @@ RUN bash installer.sh
 WORKDIR "/root/xo-game-bot"
 
 # start the bot.
-CMD ["bash", "startup"]
+CMD ["bash", "main.py"]
