@@ -1,16 +1,20 @@
+FROM python:3.9-slim-buster
 
-FROM Hydra-sjz/xo-game-bot:main
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends python3-pip git \
+    && rm -rf /var/lib/apt/lists/*
+    
+RUN pip3 install --upgrade pip
 
-# set timezone
-ENV TZ=Asia/Kolkata
-RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+WORKDIR /xo-game-bot
 
-COPY installer.sh .
+RUN chmod 777 /xo-game-bot
 
-RUN bash installer.sh
+RUN apt update && apt upgrade -y && apt install ffmpeg python3 python3-pip -y
 
-# changing workdir
-WORKDIR "/root/xo-game-bot"
+COPY requirements.txt .
 
-# start the bot.
-CMD ["bash", "main.py"]
+RUN pip3 install -r requirements.txt
+
+COPY . .
+CMD ["python3", "-m", "main.py"]
