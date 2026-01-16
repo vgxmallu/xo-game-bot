@@ -86,7 +86,7 @@ async def ping_bot(bot, message):
     ping_time = round((end_time - start_time) * 1000, 3)
     uptime = get_readable_time((time.time() - StartTime))
     await message.reply_text(f"**🏓 Ping:** `{ping_time} ms`\n**🆙 Time:** `{uptime}`")
-    await p4.delete()
+    
     await message.delete()
     await bot.send_message(LOG_CHANNEL, MP.format(message.from_user.mention, message.from_user.username, message.from_user.dc_id, message.from_user.id))
     #await asyncio.sleep(3200)
@@ -134,7 +134,6 @@ def message_handler(bot: Client, message: Message):
         bot.send_message(
             message.from_user.id,
             "Play Xo Game.",
-            reply_markup=PLAYXO
         )
 
 
