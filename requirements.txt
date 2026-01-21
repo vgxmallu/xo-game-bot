@@ -2,6 +2,7 @@ Pyrogram==2.0.106
 TgCrypto==1.2.5
 motor==2.5.1
 asyncio
+pymongo[srv]==3.12.3
 
 Flask
 gunicorn==20.1.0
