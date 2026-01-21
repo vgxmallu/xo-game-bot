@@ -12,7 +12,7 @@ from datetime import datetime
 
 OWNER_ID = 784589736
 # --- Init ---
-mongo_client = AsyncIOMotorClient(DB_URL)
+mongo_client = AsyncIOMotorClient("DB_URL")
 db = mongo_client["xoxo_broadcast_db"]
 users_collection = db["users"]
 
