@@ -6,7 +6,8 @@ from pyrogram import Client, filters, enums
 from pyrogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent, \
     InlineKeyboardMarkup, CallbackQuery, Message
 from os import environ, getenv
-
+from motor.motor_asyncio import AsyncIOMotorClient
+import asyncio
 from datetime import datetime
 
 OWNER_ID = 784589736
