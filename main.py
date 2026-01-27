@@ -130,7 +130,7 @@ g_button = InlineKeyboardMarkup(
 
 
 # --- Broadcast command ---
-@app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
+#@app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
 async def ggbroadcast(client, message):
     if not message.reply_to_message:
         await message.reply_text("❌ Reply to a message (text/photo/video/document) with `/broadcast`")
@@ -168,14 +168,14 @@ async def ggbroadcast(client, message):
 
 
 # --- Status command ---
-@app.on_message(filters.command("status") & filters.user(OWNER_ID))
+#@app.on_message(filters.command("status") & filters.user(OWNER_ID))
 async def ggstatus(client, message):
     total = await users_collection.count_documents({})
     await message.reply_text(f"📊 Total registered users: **{total}**")
 
 
 # --- Save user on /start ---
-@app.on_message(filters.command("start") & filters.private)
+#@app.on_message(filters.command("start") & filters.private)
 async def start_game(client, message):
     user = message.from_user
     user_id = user.id
@@ -204,7 +204,7 @@ async def start_game(client, message):
             f"🆕 **New member started the ❌⭕❌⭕ game bot! #xoxo**\n\n👤First name: {first_name}\n⛓️‍💥 User Link: {mention}\n©️ User Name: @{user_n}\n🆔 User ID: `{user_id}`"
         )
 
-#@app.on_message(filters.private & filters.text)
+@app.on_message(filters.private & filters.text)
 def message_handler(bot: Client, message: Message):
     if message.text == "/start":
         bot.send_message(LOG_CHANNEL, SPO.format(message.from_user.mention, message.from_user.username, message.from_user.dc_id, message.from_user.id))
