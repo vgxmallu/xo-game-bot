@@ -96,13 +96,6 @@ async def ping_bot(bot, message):
 
 
 
-
-text="""
-Hi **{}** [👋](https://telegra.ph/file/3f8ca31c69dcf369e3ecc.jpg)\n\nTo begin, start a message 
-with @tictactoe_xbot in any group chats you want, or click on the **Play** button 
-and select a chat you want to play Tic Tac Toe mini game 🕹️.
-"""
-
 g_button = InlineKeyboardMarkup(
     [
         [
@@ -113,81 +106,6 @@ g_button = InlineKeyboardMarkup(
     ]
 ) 
 
-
-# --- Broadcast command ---
-#@app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
-async def ggbroadcast(client, message):
-    if not message.reply_to_message:
-        await message.reply_text("❌ Reply to a message (text/photo/video/document) with `/broadcast`")
-        return
-
-    total = await users_collection.count_documents({})
-    sent = 0
-    failed = 0
-    removed = 0
-
-    status_msg = await message.reply_text(f"📢 Broadcasting to {total} users...")
-
-    async for user in users_collection.find({}):
-        user_id = user["_id"]
-        try:
-            await message.reply_to_message.copy(chat_id=user_id)
-            sent += 1
-            await asyncio.sleep(0.05)  # prevent flood
-        except (UserIsBlocked, PeerIdInvalid, ChatWriteForbidden):
-            # Remove dead/blocked users
-            await users_collection.delete_one({"_id": user_id})
-            removed += 1
-            failed += 1
-        except Exception:
-            failed += 1
-
-    await status_msg.edit_text(
-        f"✅ Broadcast finished!\n\n"
-        f"👥 Total Users Before: {total}\n"
-        f"📩 Sent: {sent}\n"
-        f"⚠️ Failed: {failed}\n"
-        f"🗑️ Removed from DB: {removed}\n"
-        f"📊 Active Users Now: {await users_collection.count_documents({})}"
-    )
-
-
-# --- Status command ---
-#@app.on_message(filters.command("status") & filters.user(OWNER_ID))
-async def ggstatus(client, message):
-    total = await users_collection.count_documents({})
-    await message.reply_text(f"📊 Total registered users: **{total}**")
-
-
-# --- Save user on /start ---
-#@app.on_message(filters.command("start") & filters.private)
-async def start_game(client, message):
-    user = message.from_user
-    user_id = user.id
-    user_n = user.username
-    # Insert if not exists
-    result = await users_collection.update_one(
-        {"_id": user_id},
-        {"$set": {"_id": user_id, "name": user.first_name}},
-        upsert=True
-    )
-    #await client.send_message(LOG_CHANNEL, STR.format(message.from_user.mention, message.from_user.username, message.from_user.dc_id, message.from_user.id))
-    await client.send_message(LOG_CHANNEL, SPO.format(message.from_user.mention, message.from_user.username, message.from_user.dc_id, message.from_user.id))
-    await message.reply_photo(
-        photo="https://telegra.ph/file/3f8ca31c69dcf369e3ecc.jpg",
-        caption=text.format(message.from_user.first_name),
-        reply_markup=g_button,
-    )
-    #await message.reply_audio("AwACAgUAAxkBAANYaLk0cu3EU-vGP2_ZTn2T9-E9ajQAAtcXAAK8T8hVy8L_8RGZVXoeBA")
-    #message_effect_id=5104841245755180586,
-    # If it's a new user, log them
-    if result.upserted_id is not None:
-        mention = f"[User_Link](tg://user?id={user_id})"
-        first_name = f"{user.first_name}"
-        await client.send_message(
-            LOG_CHANNEL,
-            f"🆕 **New member started the ❌⭕❌⭕ game bot! #xoxo**\n\n👤First name: {first_name}\n⛓️‍💥 User Link: {mention}\n©️ User Name: @{user_n}\n🆔 User ID: `{user_id}`"
-        )
 
 @app.on_message(filters.private & filters.text)
 def message_handler(bot: Client, message: Message):
