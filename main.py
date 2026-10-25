@@ -1,31 +1,33 @@
 import os
 import time
-import asyncio
-from data import *
-from pyrogram import Client, filters, enums
-from pyrogram.types import InlineQuery, InlineQueryResultArticle, InputTextMessageContent, \
-    InlineKeyboardMarkup, CallbackQuery, Message
-from os import environ, getenv
-from motor.motor_asyncio import AsyncIOMotorClient
+import json
 import asyncio
 from datetime import datetime
+from data import *
+from pyrogram import Client, filters, enums
+from pyrogram.types import (
+    InlineQuery, InlineQueryResultArticle, InputTextMessageContent,
+    InlineKeyboardMarkup, CallbackQuery, Message
+)
+from motor.motor_asyncio import AsyncIOMotorClient
 
 OWNER_ID = 784589736
-# --- Init ---
-mongo_client = AsyncIOMotorClient("DB_URL")
+
+# or os.environ.get("DB_URL")
+mongo_client = AsyncIOMotorClient(os.environ.get("DB_URL"))
 db = mongo_client["xoxo_broadcast_db"]
 users_collection = db["users"]
 
-app = Client("XOGame",
-             api_id=os.environ.get("API_ID"),
-             api_hash=os.environ.get("API_HASH"),
-             bot_token=os.environ.get("BOT_TOKEN")
-             )
+app = Client(
+    "XOGame",
+    api_id=os.environ.get("API_ID"),
+    api_hash=os.environ.get("API_HASH"),
+    bot_token=os.environ.get("BOT_TOKEN")
+)
 LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1001997285269"))
 
 def mention(name: str, id: int) -> str:
     return "[{}](tg://user?id={})".format(name, id)
-
 
 CONTACT_KEYS = InlineKeyboardMarkup([
     [
@@ -48,8 +50,6 @@ CONTACT_KEYS = InlineKeyboardMarkup([
         )
     ]
 ])
-
-
 
 MP = """
  **LOG PINGGGG ALERT** 
@@ -87,19 +87,20 @@ def get_readable_time(seconds: int) -> str:
 @app.on_message(filters.command("ping"))
 async def ping_bot(bot, message):
     start_time = time.time()
-    n = await message.reply_chat_action(enums.ChatAction.TYPING)
+    await message.reply_chat_action(enums.ChatAction.TYPING)
     end_time = time.time()
     ping_time = round((end_time - start_time) * 1000, 3)
     uptime = get_readable_time((time.time() - StartTime))
     await message.reply_text(f"**🏓 Ping:** `{ping_time} ms`\n**🆙 Time:** `{uptime}`")
-    await p4.delete()
+    
+    # Removed undefined 'p4' deletion call
     await message.delete()
-    await bot.send_message(LOG_CHANNEL, MP.format(message.from_user.mention, message.from_user.username, message.from_user.dc_id, message.from_user.id))
-    #await asyncio.sleep(3200)
-    #await p.delete()
-
-
-
+    
+    username = message.from_user.username if message.from_user.username else "None"
+    await bot.send_message(
+        LOG_CHANNEL, 
+        MP.format(message.from_user.mention, username, message.from_user.dc_id, message.from_user.id)
+    )
 
 SPO = """
 ➡️ **☠️LOG TICTAC** ⬅️
@@ -121,94 +122,20 @@ and select a chat you want to play Tic Tac Toe mini game 🕹️.
 g_button = InlineKeyboardMarkup(
     [
         [
-            
             InlineKeyboardButton("➕Add to Group!", switch_inline_query=emojis.game)
-            
         ],
     ]
 ) 
 
-
-# --- Broadcast command ---
-#@app.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
-async def ggbroadcast(client, message):
-    if not message.reply_to_message:
-        await message.reply_text("❌ Reply to a message (text/photo/video/document) with `/broadcast`")
-        return
-
-    total = await users_collection.count_documents({})
-    sent = 0
-    failed = 0
-    removed = 0
-
-    status_msg = await message.reply_text(f"📢 Broadcasting to {total} users...")
-
-    async for user in users_collection.find({}):
-        user_id = user["_id"]
-        try:
-            await message.reply_to_message.copy(chat_id=user_id)
-            sent += 1
-            await asyncio.sleep(0.05)  # prevent flood
-        except (UserIsBlocked, PeerIdInvalid, ChatWriteForbidden):
-            # Remove dead/blocked users
-            await users_collection.delete_one({"_id": user_id})
-            removed += 1
-            failed += 1
-        except Exception:
-            failed += 1
-
-    await status_msg.edit_text(
-        f"✅ Broadcast finished!\n\n"
-        f"👥 Total Users Before: {total}\n"
-        f"📩 Sent: {sent}\n"
-        f"⚠️ Failed: {failed}\n"
-        f"🗑️ Removed from DB: {removed}\n"
-        f"📊 Active Users Now: {await users_collection.count_documents({})}"
-    )
-
-
-# --- Status command ---
-#@app.on_message(filters.command("status") & filters.user(OWNER_ID))
-async def ggstatus(client, message):
-    total = await users_collection.count_documents({})
-    await message.reply_text(f"📊 Total registered users: **{total}**")
-
-
-# --- Save user on /start ---
-#@app.on_message(filters.command("start") & filters.private)
-async def start_game(client, message):
-    user = message.from_user
-    user_id = user.id
-    user_n = user.username
-    # Insert if not exists
-    result = await users_collection.update_one(
-        {"_id": user_id},
-        {"$set": {"_id": user_id, "name": user.first_name}},
-        upsert=True
-    )
-    #await client.send_message(LOG_CHANNEL, STR.format(message.from_user.mention, message.from_user.username, message.from_user.dc_id, message.from_user.id))
-    await client.send_message(LOG_CHANNEL, SPO.format(message.from_user.mention, message.from_user.username, message.from_user.dc_id, message.from_user.id))
-    await message.reply_photo(
-        photo="https://telegra.ph/file/3f8ca31c69dcf369e3ecc.jpg",
-        caption=text.format(message.from_user.first_name),
-        reply_markup=g_button,
-    )
-    #await message.reply_audio("AwACAgUAAxkBAANYaLk0cu3EU-vGP2_ZTn2T9-E9ajQAAtcXAAK8T8hVy8L_8RGZVXoeBA")
-    #message_effect_id=5104841245755180586,
-    # If it's a new user, log them
-    if result.upserted_id is not None:
-        mention = f"[User_Link](tg://user?id={user_id})"
-        first_name = f"{user.first_name}"
-        await client.send_message(
-            LOG_CHANNEL,
-            f"🆕 **New member started the ❌⭕❌⭕ game bot! #xoxo**\n\n👤First name: {first_name}\n⛓️‍💥 User Link: {mention}\n©️ User Name: @{user_n}\n🆔 User ID: `{user_id}`"
-        )
-
 @app.on_message(filters.private & filters.text)
-def message_handler(bot: Client, message: Message):
+async def message_handler(bot: Client, message: Message):
+    username = message.from_user.username if message.from_user.username else "None"
     if message.text == "/start":
-        bot.send_message(LOG_CHANNEL, SPO.format(message.from_user.mention, message.from_user.username, message.from_user.dc_id, message.from_user.id))
-        bot.send_message(
+        await bot.send_message(
+            LOG_CHANNEL, 
+            SPO.format(message.from_user.mention, username, message.from_user.dc_id, message.from_user.id)
+        )
+        await bot.send_message(
             message.from_user.id,
             f"Hi **{message.from_user.first_name}** [👋](https://telegra.ph/file/3f8ca31c69dcf369e3ecc.jpg)\n\nTo begin, start a message "
             "with @tictactoe_xbot in any group chats you want, or click on the **Play** button "
@@ -221,22 +148,21 @@ def message_handler(bot: Client, message: Message):
             ])
         )
     elif message.text == "/contact":
-        bot.send_message(
+        await bot.send_message(
             message.from_user.id,
             "Feel free to share your thoughts on XO bot with me.",
             reply_markup=CONTACT_KEYS
         )
     elif message.text == "/xo":
-        bot.send_message(
+        await bot.send_message(
             message.from_user.id,
             "Play Xo Game.",
             reply_markup=PLAYXO
         )
 
-
 @app.on_inline_query()
-def inline_query_handler(_, query: InlineQuery):
-    query.answer(
+async def inline_query_handler(_, query: InlineQuery):
+    await query.answer(
         results=[InlineQueryResultArticle(
             title="Tic-Tac-Toe",
             input_message_content=InputTextMessageContent(
@@ -259,14 +185,13 @@ def inline_query_handler(_, query: InlineQuery):
         cache_time=1
     )
 
-
 @app.on_callback_query()
-def callback_query_handler(bot: Client, query: CallbackQuery):
+async def callback_query_handler(bot: Client, query: CallbackQuery):
     data = json.loads(query.data)
     game = get_game(query.inline_message_id, data)
     if data["type"] == "P":  # Player
         if game.player1["id"] == query.from_user.id:
-            bot.answer_callback_query(
+            await bot.answer_callback_query(
                 query.id,
                 "Wait for opponent!",
                 show_alert=True
@@ -288,28 +213,26 @@ def callback_query_handler(bot: Client, query: CallbackQuery):
                 emojis.X
             )
 
-            bot.edit_inline_text(
+            await bot.edit_inline_text(
                 query.inline_message_id,
                 message_text,
                 reply_markup=InlineKeyboardMarkup(game.board_keys)
             )
     elif data["type"] == "K":  # Keyboard
         if data["end"]:
-            bot.answer_callback_query(
+            await bot.answer_callback_query(
                 query.id,
                 "Match has ended!",
                 show_alert=True
             )
-
             return
 
         if (game.whose_turn and query.from_user.id != game.player1["id"]) \
                 or (not game.whose_turn and query.from_user.id != game.player2["id"]):
-            bot.answer_callback_query(
+            await bot.answer_callback_query(
                 query.id,
                 "Not your turn!"
             )
-
             return
 
         if game.fill_board(query.from_user.id, data["coord"]):
@@ -347,13 +270,13 @@ def callback_query_handler(bot: Client, query: CallbackQuery):
                     emojis.X if game.whose_turn else emojis.O
                 )
 
-            bot.edit_inline_text(
+            await bot.edit_inline_text(
                 query.inline_message_id,
                 message_text,
                 reply_markup=InlineKeyboardMarkup(game.board_keys)
             )
         else:
-            bot.answer_callback_query(
+            await bot.answer_callback_query(
                 query.id,
                 "This one is already taken!"
             )
@@ -371,14 +294,14 @@ def callback_query_handler(bot: Client, query: CallbackQuery):
             emojis.X
         )
 
-        bot.edit_inline_text(
+        await bot.edit_inline_text(
             query.inline_message_id,
             message_text,
             reply_markup=InlineKeyboardMarkup(game.board_keys)
         )
     elif data["type"] == "C":  # Contact
         if data["action"] == "email":
-            bot.edit_message_text(
+            await bot.edit_message_text(
                 query.from_user.id,
                 query.message.message_id,
                 "reza.farja78@gmail.com",
@@ -394,12 +317,11 @@ def callback_query_handler(bot: Client, query: CallbackQuery):
                 )
             )
         elif data["action"] == "email-back":
-            bot.edit_message_text(
+            await bot.edit_message_text(
                 query.from_user.id,
                 query.message.message_id,
                 "Feel free to share your thoughts on XO bot with me.",
                 reply_markup=CONTACT_KEYS
             )
-
 
 app.run()
