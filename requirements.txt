@@ -5,3 +5,4 @@ motor==2.5.1
 pymongo[srv]==3.12.3
 Flask
 gunicorn==20.1.0
+python-dotenv
